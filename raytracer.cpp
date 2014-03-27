@@ -248,24 +248,7 @@ Colour Raytracer::shadeRay( Ray3D& ray ) {
 
 	return col; 
 }	
-/*
- * for (int y = 0; y < myScene.sizey; ++y) 
- for (int x = 0; x < myScene.sizex; ++x) 
- {
- float red = 0, green = 0, blue = 0; 
- for(float fragmentx = x; fragmentx < x + 1.0f; fragmentx += 0.5f)
- for(float fragmenty = y; fragmenty < y + 1.0f; fragmenty += 0.5f)
- {
- // Each ray contribute to the quarter of a full pixel contribution.
- float coef = 0.25f; 
- // Then just launch rays as we did before
- 
- }
- // Then the contribution of each ray is added and the result is put into the image file
- 
- } 
- * 
-*/
+
 void Raytracer::render( int width, int height, Point3D eye, Vector3D view, 
 		Vector3D up, double fov, char* fileName) {
 	Matrix4x4 viewToWorld;
