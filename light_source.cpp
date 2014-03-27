@@ -39,12 +39,13 @@ void PointLight::shade( Ray3D& ray ) {
     //intensity due to specular light
     Colour Is = (*ray.intersection.mat).specular*(std::max(0.0,pow(V.dot(R),(*ray.intersection.mat).specular_exp))*_col_specular);
 
-    //Phone shading
-    //ray.col = Ia + Id + Is;
+    //Phong shading
+    ray.col = Ia + Id + Is;
     //Only diffuse and ambient
     //ray.col = Ia + Id;
     //Scene signature
-    ray.col = (*ray.intersection.mat).diffuse;
+    //ray.col = (*ray.intersection.mat).diffuse;
     ray.col.clamp();
+
 }
 
