@@ -202,11 +202,8 @@ void Raytracer::computeShading( Ray3D& ray ) {
 
         // If ray intersects another object  it falls in a shadow
 	    if (!shadowRay.intersection.none) {
-	    	//computeShading(ray); 
-		    //col = ray.col;
             ray.col = 0.5*ray.col;
     	}
-
 		curLight = curLight->next;
 	}
 }
@@ -234,18 +231,43 @@ void Raytracer::flushPixelBuffer( char *file_name ) {
 
 Colour Raytracer::shadeRay( Ray3D& ray ) {
 	Colour col(0.0, 0.0, 0.0); 
+
 	traverseScene(_root, ray); 
 	
 	// Don't bother shading if the ray didn't hit 
 	// anything.
 	if (!ray.intersection.none) {
-		computeShading(ray); 
-		col = ray.col;  
+		computeShading(ray);
+
+        // You'll want to call shadeRay recursively (with a different ray, 
+    	// of course) here to implement reflection/refraction effects.  
+        float dampFactor = 0.0;
+
+        // Calculate reflection ray
+        Vector3D N = ray.intersection.normal;
+        Vector3D D = ray.dir;
+        Vector3D reflectionDir = -2*(D.dot(N))*N + D;
+        reflectionDir.normalize();
+        Point3D reflectionOrigin = ray.intersection.point + 0.01*reflectionDir;
+        Ray3D reflectionRay = Ray3D(reflectionOrigin, reflectionDir);
+
+        // calculate shade of reflected ray
+        shadeRay(reflectionRay);
+
+        // limit effective distance of reflections
+        if (reflectionRay.intersection.t_value > 3.0 || reflectionRay.intersection.t_value <= 0.0) {
+            col = ray.col;
+        }
+        else {
+        dampFactor = fabs(1.0/reflectionRay.intersection.t_value);
+        // contraint dampFactor to 0-0.9
+        dampFactor = fmax(0, fmin(dampFactor,0.9));
+        // Set colour to include reflection
+        col = ray.col + dampFactor*reflectionRay.col;
+        }
+
+        col.clamp();
 	}
-
-	// You'll want to call shadeRay recursively (with a different ray, 
-	// of course) here to implement reflection/refraction effects.  
-
 	return col; 
 }	
 
