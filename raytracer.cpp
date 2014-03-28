@@ -272,7 +272,7 @@ Colour Raytracer::shadeRay( Ray3D& ray ) {
 }	
 
 void Raytracer::render( int width, int height, Point3D eye, Vector3D view, 
-		Vector3D up, double fov, char* fileName ) {
+		Vector3D up, double fov, char* fileName) {
 	Matrix4x4 viewToWorld;
 	_scrWidth = width;
 	_scrHeight = height;
@@ -284,28 +284,35 @@ void Raytracer::render( int width, int height, Point3D eye, Vector3D view,
 	// Construct a ray for each pixel.
 	for (int i = 0; i < _scrHeight; i++) {
 		for (int j = 0; j < _scrWidth; j++) {
-			// Sets up ray origin and direction in view space, 
-			// image plane is at z = -1.
-			Point3D origin(0, 0, 0);
-			Point3D imagePlane;
-			imagePlane[0] = (-double(width)/2 + 0.5 + j)/factor;
-			imagePlane[1] = (-double(height)/2 + 0.5 + i)/factor;
-			imagePlane[2] = -1;
+			//perform antialiasing with a factor of 4 so ray is computed 4 times at a pixel
+			//and multiplied by factor 1/4 and summed together for antialiased image
+			 for(float fragmenti = i; fragmenti < i + 1.0f; fragmenti += 0.5f){
+				for(float fragmentj = j; fragmentj < j + 1.0f; fragmentj += 0.5f){
+					// Sets up ray origin and direction in view space, 
+					// image plane is at z = -1.
+					Point3D origin(0, 0, 0);
+					Point3D imagePlane;
+					imagePlane[0] = (-double(width)/2 + 0.5 + fragmentj)/factor;
+					imagePlane[1] = (-double(height)/2 + 0.5 + fragmenti)/factor;
+					imagePlane[2] = -1;
 
-			// TODO: Convert ray to world space and call 
-			// shadeRay(ray) to generate pixel colour. 	
-			
-			Ray3D ray;
-            // want ray to be in world frame
-            ray.origin = viewToWorld*origin;
-            ray.dir = viewToWorld*(imagePlane-origin);
-            ray.dir.normalize();
+					// TODO: Convert ray to world space and call 
+					// shadeRay(ray) to generate pixel colour. 
+					//multiply each ray by 1/4	
+					float coef = 0.25f; 
+					Ray3D ray;
+					// want ray to be in world frame
+					ray.origin = viewToWorld*origin;
+					ray.dir = viewToWorld*(imagePlane-origin);
+					ray.dir.normalize();
 
-			Colour col = shadeRay(ray); 
-
-			_rbuffer[i*width+j] = int(col[0]*255);
-			_gbuffer[i*width+j] = int(col[1]*255);
-			_bbuffer[i*width+j] = int(col[2]*255);
+					Colour col = shadeRay(ray); 
+					//now sum the total contributions from 4 rays per pixel
+					_rbuffer[i*width+j] += int(col[0]*255*coef);
+					_gbuffer[i*width+j] += int(col[1]*255*coef);
+					_bbuffer[i*width+j] += int(col[2]*255*coef);
+				}
+			}
 		}
 	}
 
@@ -350,10 +357,11 @@ int main(int argc, char* argv[])
 	SceneDagNode* sphere = raytracer.addObject( new UnitSphere(), &gold );
 	SceneDagNode* plane = raytracer.addObject( new UnitSquare(), &jade );
 	//SceneDagNode* sphere = raytracer.addObject( new UnitSphere(), &gold );
-
+	SceneDagNode* cylinder = raytracer.addObject( new UnitCylinder(), &gold );
 	// Apply some transformations to the unit square.
 	double factor1[3] = { 1.0, 2.0, 1.0 };
 	double factor2[3] = { 6.0, 6.0, 6.0 };
+	double factor3[3] = { 1.5, 1.5, 1.5 };
 	raytracer.translate(sphere, Vector3D(0, 0, -5));	
 	raytracer.rotate(sphere, 'x', -45); 
 	raytracer.rotate(sphere, 'z', 45); 
@@ -362,6 +370,10 @@ int main(int argc, char* argv[])
 	raytracer.translate(plane, Vector3D(0, 0, -7));	
 	raytracer.rotate(plane, 'z', 45); 
 	raytracer.scale(plane, Point3D(0, 0, 0), factor2);
+	
+	raytracer.translate(cylinder, Vector3D(3, 0, -5));	
+	//raytracer.rotate(cylinder, 'z', 45); 
+	raytracer.scale(cylinder, Point3D(0, 0, 0), factor3);
 
 	// Render the scene, feel free to make the image smaller for
 	// testing purposes.	
