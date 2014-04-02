@@ -1,0 +1,20 @@
+CSC418 Assignment 3 Report
+Maegan Chang
+Eric Ko
+
+1. Ray casting
+
+2. Ray-sphere intersection
+
+3. Ray-square intersection
+
+4. Phong shading for point light source
+- Scene signature
+- Ambient and diffuse
+- Full phong
+
+5. Reflection
+
+2. Shadows
+
+
