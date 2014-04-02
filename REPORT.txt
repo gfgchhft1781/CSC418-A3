@@ -1,20 +1,33 @@
 CSC418 Assignment 3 Report
-Maegan Chang
+Maegan Chang 997532825
 Eric Ko
 
-1. Ray casting
+1. Ray casting (Maegan)
+Rays are shaded using the shadeRay(ray) function.  This function traverses the scene and determines if the ray intersects any object.  The ray takes the colour of the object closest to the light source.  In order to call shadeRay(ray) the ray must be in the world frame.
 
-2. Ray-sphere intersection
+2. Ray-sphere intersection (Maegan)
+Ray sphere intersection was implemented by using the quadratic formula to find the points where the ray intersections the sphere.  The ray may intersect the sphere never, once, or twice.  In the case where the ray intersects the sphere twice the closer intersection point is chosen.  If the ray intersects the sphere the ray colour is set, otherwise it is black.
 
-3. Ray-square intersection
+3. Ray-square intersection (Maegan)
+Ray-square intersection was implemented by projecting the x-y position of the light source on to the z=0 plane and seeing if the point falls within the boundaries of the square.  If the ray intersects the square the ray colour is set, otherwise it is black.
 
-4. Phong shading for point light source
+4. Phong shading for point light source (Maegan)
+Phong shading is implemented for point light sources.  It uses the phone shading formula to calculate the intensities of ambient, diffuse and specular light.
 - Scene signature
+The scene signature only uses the flat diffuse component of the object material colour.
 - Ambient and diffuse
+The ambient and diffuse phong colour rendering only uses the ambient and diffuse intensity components calculated from the phone formula.
 - Full phong
+The full phone colour rendering includes all calculated intensities from the phone formula.
 
-5. Reflection
+5. Reflection (Maegan)
+Reflections are implemented in Raytracer::shadeRay(...).  A reflection ray is generated based on the angle the ray makes with the object it hits. shadeRay(...) is then called recursively as long as the next intersection is within 10 units of the previous intersection point.
 
-2. Shadows
+6. Shadows (Maegan)
+Shadows are implemented in Raytracer::computeShading by creating a ray with origin at the intersection point, directed toward the light source.  This new shadow ray is checked for intersections with other objects.  If an intersection occurs this means that the first origin is in shadow.  If the point is in shadow the colour is multiplied by 0.5 to make it darker.
 
+--Submitted images--
 
+--External Resources--
+
+Ray-Sphere Intersection - wiki.cgsociety.org/index.php/Ray_Sphere_Intersection
